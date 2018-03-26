@@ -1,13 +1,13 @@
 package ru.lanwen.verbalregex;
 
-import static java.lang.String.valueOf;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.lang.String.valueOf;
 
 public class VerbalExpression {
 
@@ -19,6 +19,10 @@ public class VerbalExpression {
         private StringBuilder source = new StringBuilder();
         private StringBuilder suffixes = new StringBuilder();
         private int modifiers = Pattern.MULTILINE;
+
+        String validHtml = "/^<([a-z]+)([^<]+)*(?:>(.*)<\\/\\1>|\\s+\\/>)$/";
+
+        String _ = "s";
 
         private static final Map<Character, Integer> SYMBOL_MAP = new HashMap<Character, Integer>() {{
             put('d', Pattern.UNIX_LINES);
@@ -190,13 +194,13 @@ public class VerbalExpression {
          * Example:
          * The following matches all names that have a prefix or not.
          * VerbalExpression.Builder namePrefix = regex().oneOf("Mr.", "Ms.");
-	 * VerbalExpression name = regex()
-	 *	.maybe(namePrefix)
-	 *	.space()
-	 *	.zeroOrMore()
-	 *	.word()
-	 *	.oneOrMore()
-	 *	.build();
+         * VerbalExpression name = regex()
+         * .maybe(namePrefix)
+         * .space()
+         * .zeroOrMore()
+         * .word()
+         * .oneOrMore()
+         * .build();
          * regex.test("Mr. Bond/")    //true
          * regex.test("James")   //true
          *
@@ -467,6 +471,12 @@ public class VerbalExpression {
             return this.add("+");
         }
 
+        public boolean isValidHtmlTag(final String input) {
+            return Pattern.matches(validHtml, input);
+        }
+
+
+
         /**
          * Adds "*" char to regexp, means zero or more times repeated
          * Same effect as {@link #atLeast(int)} with "0" argument
@@ -524,7 +534,7 @@ public class VerbalExpression {
 
         /**
          * Add a alternative expression to be matched
-         *
+         * <p>
          * Issue #32
          *
          * @param pValue - the string to be looked for
@@ -556,18 +566,18 @@ public class VerbalExpression {
          * @since 1.3
          */
         public Builder oneOf(final String... pValues) {
-            if(pValues != null && pValues.length > 0) {
-        	this.add("(?:");
-        	for(int i = 0; i < pValues.length; i++) {
-        	    String value = pValues[i];
-        	    this.add("(?:");
-        	    this.add(value);
-        	    this.add(")");
-        	    if(i < pValues.length - 1) {
-        	        this.add("|");
-        	    }
-        	}
-        	this.add(")");
+            if (pValues != null && pValues.length > 0) {
+                this.add("(?:");
+                for (int i = 0; i < pValues.length; i++) {
+                    String value = pValues[i];
+                    this.add("(?:");
+                    this.add(value);
+                    this.add(")");
+                    if (i < pValues.length - 1) {
+                        this.add("|");
+                    }
+                }
+                this.add(")");
             }
             return this;
         }
